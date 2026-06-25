@@ -1,4 +1,94 @@
-<!DOCTYPE html><html lang="pt"><head>
-<meta charset="UTF-8"><meta name="viewport"content="width=device-width, initial-scale=1.0">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
-<script src="sketch.js"></script></head><body></body></html>
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard1 • Weather Station</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+  <style>
+    /* ===== RESET & BASE ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0f;
+      overflow: hidden;
+      font-family: 'Share Tech Mono', monospace;
+      cursor: crosshair;
+    }
+
+    /* ===== SCANLINE + GRID ===== */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(0deg,
+          transparent, transparent 2px,
+          rgba(0, 0, 0, 0.03) 2px, rgba(0, 0, 0, 0.03) 4px);
+      pointer-events: none;
+      z-index: 999;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 255, 229, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 229, 0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ===== CURSOR GLOW ===== */
+    #cursor-glow {
+      position: fixed;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 255, 229, 0.04) 0%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 998;
+    }
+
+    /* ===== STATUS OVERLAY ===== */
+    .status-overlay {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      font-size: 0.6rem;
+      color: #5a5a8a;
+      letter-spacing: 0.1em;
+      z-index: 100;
+      background: rgba(10,10,15,0.7);
+      padding: 4px 12px;
+      border-radius: 4px;
+      border-right: 2px solid #ff2d78;
+      pointer-events: none;
+    }
+    .status-overlay .dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse-dot 2s infinite;
+    }
+    .status-overlay .dot.online { background: #00ffe5; }
+    .status-overlay .dot.offline { background: #ff2d78; }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+  <div id="cursor-glow"></div>
+  <div class="status-overlay" id="statusBar">
+    <span class="dot online" id="statusDot"></span>
+    <span id="statusText">LIVE</span>
+  </div>
+  <script src="sketch.js"></script>
+</body>
+</html>
