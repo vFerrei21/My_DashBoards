@@ -1,14 +1,730 @@
-<!DOCTYPE html><html lang="pt"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MyDashboards</title>
-<style>
-body{font-family:Arial;background:#111;color:#fff;text-align:center;padding:40px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
-.card{background:#222;padding:20px;border-radius:16px}
-a{color:white;text-decoration:none;background:#444;padding:10px 15px;border-radius:8px}
-</style></head><body>
-<h1>MyDashboards</h1>
-<div class="grid">
-<div class="card"><h2>Dashboard 1</h2><p>Meteorologia + Hora do Dia </p><a href="dashboard1/">Abrir</a></div>
-<div class="card"><h2>Dashboard 2</h2><p>Geração e edição de imagem</p><a href="dashboard2/">Abrir</a></div>
-</div></body></html>
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyDashboards // vferrei21</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <style>
+        /* ===== ROOT ===== */
+        :root {
+            --void: #0a0a0f;
+            --surface: #0f0f1a;
+            --card: #12121f;
+            --cyan: #00ffe5;
+            --magenta: #ff2d78;
+            --violet: #7b2fff;
+            --text: #c8c8ff;
+            --dim: #5a5a8a;
+            --white: #eeeeff;
+        }
+
+        /* ===== RESET ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--void);
+            color: var(--text);
+            font-family: 'Share Tech Mono', monospace;
+            overflow-x: hidden;
+            cursor: crosshair;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== SCANLINE OVERLAY ===== */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.03) 2px,
+                    rgba(0, 0, 0, 0.03) 4px);
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ===== GRID BACKGROUND ===== */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0, 255, 229, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 229, 0.025) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ===== CURSOR GLOW ===== */
+        .cursor-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 255, 229, 0.04) 0%, transparent 70%);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 998;
+        }
+
+        /* ===== NAV ===== */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 3rem;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 255, 229, 0.15);
+        }
+
+        .nav-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: var(--cyan);
+            letter-spacing: 0.2em;
+            text-decoration: none;
+        }
+
+        .nav-logo span {
+            color: var(--magenta);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dim);
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--cyan);
+        }
+
+        /* ===== HERO ===== */
+        #hero {
+            position: relative;
+            z-index: 1;
+            min-height: 40vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 8rem 3rem 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            color: var(--cyan);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .hero-label::before {
+            content: '// ';
+            color: var(--magenta);
+        }
+
+        .hero-label .repo-badge {
+            display: inline-block;
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+            padding: 0.15rem 0.6rem;
+            margin-left: 0.75rem;
+            border: 1px solid rgba(123, 47, 255, 0.4);
+            color: var(--violet);
+            border-radius: 2px;
+            text-transform: none;
+        }
+
+        h1.glitch {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: clamp(2.6rem, 6vw, 5rem);
+            line-height: 1;
+            color: var(--white);
+            letter-spacing: 0.05em;
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+
+        h1.glitch::before,
+        h1.glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        h1.glitch::before {
+            color: var(--cyan);
+            animation: glitch-1 4s infinite;
+            clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+        }
+
+        h1.glitch::after {
+            color: var(--magenta);
+            animation: glitch-2 4s infinite;
+            clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+        }
+
+        @keyframes glitch-1 {
+            0%,
+            90%,
+            100% {
+                transform: none;
+                opacity: 0;
+            }
+            92% {
+                transform: translateX(-3px);
+                opacity: 1;
+            }
+            94% {
+                transform: translateX(3px);
+                opacity: 1;
+            }
+            96% {
+                transform: none;
+                opacity: 0;
+            }
+        }
+
+        @keyframes glitch-2 {
+            0%,
+            88%,
+            100% {
+                transform: none;
+                opacity: 0;
+            }
+            90% {
+                transform: translateX(3px);
+                opacity: 1;
+            }
+            93% {
+                transform: translateX(-2px);
+                opacity: 1;
+            }
+            95% {
+                transform: none;
+                opacity: 0;
+            }
+        }
+
+        .hero-sub {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            font-weight: 400;
+            color: var(--violet);
+            letter-spacing: 0.15em;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .hero-desc {
+            font-size: 0.85rem;
+            color: var(--dim);
+            max-width: 520px;
+            line-height: 1.8;
+        }
+
+        /* ===== SECTION ===== */
+        section {
+            position: relative;
+            z-index: 1;
+            padding: 2rem 3rem 5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            color: var(--magenta);
+            text-transform: uppercase;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--magenta), transparent);
+            max-width: 200px;
+        }
+
+        h2.section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: 0.05em;
+            margin-bottom: 2.5rem;
+        }
+
+        /* ===== DASHBOARD GRID ===== */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* ===== DASHBOARD CARD ===== */
+        .dash-card {
+            position: relative;
+            background: var(--card);
+            border: 1px solid rgba(0, 255, 229, 0.12);
+            padding: 2rem;
+            text-decoration: none;
+            display: block;
+            overflow: hidden;
+            transition: border-color 0.3s, transform 0.3s;
+            cursor: pointer;
+        }
+
+        .dash-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .dash-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(0, 255, 229, 0.05) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .dash-card:hover {
+            border-color: rgba(0, 255, 229, 0.5);
+            transform: translateY(-4px);
+        }
+
+        .dash-card:hover::before {
+            transform: translateX(100%);
+        }
+        .dash-card:hover::after {
+            opacity: 1;
+        }
+
+        /* Corner brackets */
+        .dash-card .bracket-tl,
+        .dash-card .bracket-br {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            transition: all 0.3s;
+        }
+
+        .bracket-tl {
+            top: 8px;
+            left: 8px;
+            border-top: 1px solid var(--cyan);
+            border-left: 1px solid var(--cyan);
+            opacity: 0;
+        }
+
+        .bracket-br {
+            bottom: 8px;
+            right: 8px;
+            border-bottom: 1px solid var(--cyan);
+            border-right: 1px solid var(--cyan);
+            opacity: 0;
+        }
+
+        .dash-card:hover .bracket-tl,
+        .dash-card:hover .bracket-br {
+            opacity: 1;
+        }
+
+        .card-tag {
+            display: inline-block;
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            padding: 0.25rem 0.6rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tag-cyan {
+            color: var(--cyan);
+            border-color: rgba(0, 255, 229, 0.4);
+        }
+        .tag-magenta {
+            color: var(--magenta);
+            border-color: rgba(255, 45, 120, 0.4);
+        }
+        .tag-violet {
+            color: var(--violet);
+            border-color: rgba(123, 47, 255, 0.4);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-desc {
+            font-size: 0.8rem;
+            color: var(--dim);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stack-pill {
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+            padding: 0.2rem 0.5rem;
+            background: rgba(123, 47, 255, 0.15);
+            color: var(--violet);
+            border: 1px solid rgba(123, 47, 255, 0.3);
+        }
+
+        .card-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.72rem;
+            color: var(--cyan);
+            margin-top: 1.5rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 1;
+            transition: gap 0.2s;
+        }
+
+        .dash-card:hover .card-link {
+            gap: 0.9rem;
+        }
+
+        .card-link svg {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.2s;
+        }
+
+        .dash-card:hover .card-link svg {
+            transform: translateX(3px);
+        }
+
+        /* ===== SCROLL INDICATOR ===== */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.65rem;
+            color: var(--dim);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .scroll-indicator::before {
+            content: '';
+            display: block;
+            width: 1px;
+            height: 40px;
+            background: linear-gradient(180deg, var(--cyan), transparent);
+        }
+
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(6px);
+            }
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid rgba(0, 255, 229, 0.08);
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .footer-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--dim);
+            letter-spacing: 0.2em;
+        }
+
+        .footer-logo span {
+            color: var(--magenta);
+        }
+
+        .footer-copy {
+            font-size: 0.65rem;
+            color: var(--dim);
+            letter-spacing: 0.1em;
+        }
+
+        .github-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--cyan);
+            text-decoration: none;
+            font-size: 0.72rem;
+            letter-spacing: 0.1em;
+            transition: color 0.2s;
+        }
+
+        .github-link:hover {
+            color: var(--white);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 1.5rem;
+            }
+            .nav-links {
+                display: none;
+            }
+            #hero {
+                padding: 6rem 1.5rem 2rem;
+                min-height: 30vh;
+            }
+            section {
+                padding: 1.5rem 1.5rem 3rem;
+            }
+            .dash-grid {
+                grid-template-columns: 1fr;
+            }
+            footer {
+                padding: 1.5rem;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .scroll-indicator {
+                display: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CURSOR GLOW -->
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <!-- NAV -->
+    <nav>
+        <a href="#" class="nav-logo">MyDash<span>boards</span></a>
+        <ul class="nav-links">
+            <li><a href="#dashboards">Dashboards</a></li>
+            <li><a href="https://github.com/vferrei21/My_DashBoards" target="_blank" rel="noopener">GitHub ↗</a></li>
+        </ul>
+    </nav>
+
+    <!-- HERO -->
+    <div style="position:relative; z-index:1;">
+        <section id="hero" style="max-width:100%; padding-top:9rem;">
+            <p class="hero-label">
+                MyDashboards
+                <span class="repo-badge">vferrei21</span>
+            </p>
+            <h1 class="glitch" data-text="DASHBOARDS">DASHBOARDS</h1>
+            <p class="hero-sub">Dados · API · IA</p>
+            <p class="hero-desc">
+                Coleção de dashboards interativos — meteorologia com hora do dia em tempo real
+                e um gerador / editor de imagens com IA. Dados dinâmicos com APIs externas.
+            </p>
+            <div class="scroll-indicator" aria-hidden="true">Scroll</div>
+        </section>
+    </div>
+
+    <!-- DASHBOARDS -->
+    <section id="dashboards">
+        <p class="section-label">// 01 — Coleção</p>
+        <h2 class="section-title">Dashboards disponíveis</h2>
+
+        <div class="dash-grid">
+
+            <!-- DASHBOARD 1 — Meteorologia -->
+            <a class="dash-card" href="dashboard1/" target="_blank" rel="noopener">
+                <div class="bracket-tl"></div>
+                <div class="bracket-br"></div>
+                <span class="card-tag tag-cyan">Dados · Tempo real</span>
+                <span class="card-icon">◧</span>
+                <h3 class="card-title">Meteorologia + Hora do Dia</h3>
+                <p class="card-desc">
+                    Dashboard com informações meteorológicas atualizadas em tempo real
+                    e relógio dinâmico que se adapta ao período do dia (manhã, tarde, noite).
+                </p>
+                <div class="card-stack">
+                    <span class="stack-pill">API Weather</span>
+                    <span class="stack-pill">JavaScript</span>
+                    <span class="stack-pill">CSS</span>
+                </div>
+                <div class="card-link">
+                    Abrir dashboard
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" stroke-width="1.5"/></svg>
+                </div>
+            </a>
+
+            <!-- DASHBOARD 2 — IA Imagem -->
+            <a class="dash-card" href="dashboard2/" target="_blank" rel="noopener">
+                <div class="bracket-tl"></div>
+                <div class="bracket-br"></div>
+                <span class="card-tag tag-magenta">IA · Imagem</span>
+                <span class="card-icon">◈</span>
+                <h3 class="card-title">Geração e Edição de Imagem</h3>
+                <p class="card-desc">
+                    Editor visual com geração de imagens por IA e ferramentas de edição
+                    integradas. Cria, transforma e exporta composições.
+                </p>
+                <div class="card-stack">
+                    <span class="stack-pill">AI Image</span>
+                    <span class="stack-pill">Canvas</span>
+                    <span class="stack-pill">JavaScript</span>
+                </div>
+                <div class="card-link">
+                    Abrir dashboard
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" stroke-width="1.5"/></svg>
+                </div>
+            </a>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <span class="footer-logo">MyDash<span>boards</span></span>
+        <span class="footer-copy">© 2025 — Todos os dashboards no GitHub Pages</span>
+        <a href="https://github.com/vferrei21/My_DashBoards" target="_blank" rel="noopener" class="github-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.164 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.341-3.369-1.341-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+            </svg>
+            github.com/vferrei21/My_DashBoards
+        </a>
+    </footer>
+
+    <script>
+        // Cursor glow
+        const glow = document.getElementById('cursorGlow');
+        document.addEventListener('mousemove', e => {
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+        });
+
+        // Intersection Observer for fade-in
+        const cards = document.querySelectorAll('.dash-card');
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.style.opacity = '1';
+                    e.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        cards.forEach(c => {
+            c.style.opacity = '0';
+            c.style.transform = 'translateY(20px)';
+            c.style.transition = 'opacity 0.6s ease, transform 0.6s ease, border-color 0.3s';
+            io.observe(c);
+        });
+    </script>
+
+</body>
+</html>
